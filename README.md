@@ -1,7 +1,7 @@
 # 📊 Student Lifestyle & Academic Productivity Analysis
 
 > **A Comprehensive Empirical Investigation into Digital Distraction, Sleep Quality, Study Routine Consistency, and Academic Performance**  
-> *Course Project for Data Handling & Visualization (IDHV) — Semester 5*
+> *Course Project for Introduction to Data Handling & Visualization (IDHV) — M-2026*
 
 ---
 

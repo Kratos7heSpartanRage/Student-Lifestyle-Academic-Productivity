@@ -33,9 +33,9 @@ In accordance with course guidelines, the project responsibilities were distribu
 
 | Group Member | Primary Module & Role | Core Contributions & Deliverables |
 | :--- | :--- | :--- |
-| **M. Pranav** | **Data Preprocessing & Data Hygiene** *(Section 3)* | Survey data extraction, standardization of variables, missingness diagnostics (MCAR/MAR/MNAR patterns), median/mode imputation protocols, and non-imputation policy for sensitive CGPA records. Documented in `Pranav.ipynb` and Section 3 of the final report. |
-| **K. Krish** | **Study Formulation, Methodology & Administration** *(Sections 1 & 2)* | Research question definition, sampling frame design (simple random sampling of college cohort), literature review, thematic questionnaire construction via Google Forms, and survey administration. Documented in `Krish.ipynb` and Sections 1 & 2 of the final report. |
-| **Mayank Kumar** | **Exploratory Data Analysis, Statistical Modeling & Visualizations** *(Sections 4, 5 & Appendix)* | Comprehensive EDA covering Units 1–6: descriptive stats, frequency tables & ogives with graphical median derivation, Min-Max vs Z-score normalization, outlier/leverage diagnostics, categorical $\chi^2$ tests, One-Way ANOVA, Benjamini-Hochberg FDR-corrected correlations, multiple linear regression with 4-panel diagnostics, multivariate trellis conditioning, executive dashboard, publication-grade figures, and complete report compilation (`Mayank.ipynb`, Section 4, 5, and Appendix). |
+| **M. Pranav** | **Data Preprocessing & Data Hygiene** *(Section 3)* | Survey data extraction, standardization of variables, missingness diagnostics (MCAR/MAR/MNAR patterns), median/mode imputation protocols, and non-imputation policy for sensitive CGPA records. Documented in `notebooks/Pranav.ipynb` and Section 3 of the final report. |
+| **K. Krish** | **Study Formulation, Methodology & Administration** *(Sections 1 & 2)* | Research question definition, sampling frame design (simple random sampling of college cohort), literature review, thematic questionnaire construction via Google Forms, and survey administration. Documented in `notebooks/Krish.ipynb` and Sections 1 & 2 of the final report. |
+| **Mayank Kumar** | **Exploratory Data Analysis, Statistical Modeling & Visualizations** *(Sections 4, 5 & Appendix)* | Comprehensive EDA covering Units 1–6: descriptive stats, frequency tables & ogives with graphical median derivation, Min-Max vs Z-score normalization, outlier/leverage diagnostics, categorical $\chi^2$ tests, One-Way ANOVA, Benjamini-Hochberg FDR-corrected correlations, multiple linear regression with 4-panel diagnostics, multivariate trellis conditioning, executive dashboard, publication-grade figures, and complete report compilation (`notebooks/Mayank.ipynb`, Section 4, 5, and Appendix). |
 
 ---
 
@@ -65,46 +65,60 @@ This project serves as a comprehensive demonstration of the entire Data Handling
 
 ---
 
-## 🗂️ Repository Architecture
+## 🗂️ Clean Repository Architecture
 
-The project directory is structured cleanly into modular folders:
+The project directory is structured cleanly and modularly without duplicate files or tracked binaries:
 
 ```text
 Course Project/
 │
-├── README.md                           # Comprehensive project documentation
-├── .gitignore                          # Standard Python, Jupyter, OS & Office ignore rules
+├── README.md                           # Comprehensive project documentation & syllabus guide
+├── .gitignore                          # Git ignore rules (Word reports, PDFs & temp files ignored)
 │
-├── IDHV_Project_Complete.docx          # Primary Final Report (Sections 1-6 with bordered tables & figures)
-├── Mayank.ipynb                        # Primary Executed Notebook (28 cells covering Units 1-6)
-├── Mayank_Analysis_Figures.pdf         # Publication-grade vector PDF of all 10 figures
-├── cleaned_data.csv                    # Cleaned & range-sanitized dataset with composite scores (N=48)
-├── raw_data.csv                        # Original raw survey submissions (N=60)
+├── data/                               # Dataset storage
+│   ├── raw/
+│   │   └── raw_data.csv                # Original survey responses exported from Google Forms (N=60)
+│   ├── processed/
+│   │   ├── cleaned_data.csv            # Cleaned & sanitized dataset with composite scores (N=55)
+│   │   ├── cleaned_imputed.csv         # Imputed dataset variant (for comparative robustness)
+│   │   └── student_survey_processed.csv# Preprocessed survey dataset
+│   └── tables/                         # Exported CSV frequency & descriptive statistical tables
+│       ├── descriptive_statistics.csv
+│       ├── freq_table_sleep_hours.csv
+│       └── freq_table_study_hours.csv
 │
-├── data/                               # Data storage
-│   ├── raw/                            # Raw response CSV files
-│   ├── processed/                      # Preprocessed & imputed datasets
-│   └── tables/                         # Exported CSV frequency and descriptive tables
+├── figures/                            # Publication-quality visual artifacts
+│   └── figures_eda/                    # 10 High-resolution (300 DPI) figures (Figures 1 to 10)
+│       ├── eda_fig01_frequency_polygon_ogive.png
+│       ├── eda_fig02_normalization_comparison.png
+│       ├── eda_fig03_outliers_leverage_cooks.png
+│       ├── eda_fig04_descriptive_distributions.png
+│       ├── eda_fig05_categorical_crosstabs.png
+│       ├── eda_fig06_correlation_heatmap_annotated.png
+│       ├── eda_fig07_anova_group_comparisons.png
+│       ├── eda_fig08_regression_diagnostics.png
+│       ├── eda_fig09_multivariate_interactions.png
+│       └── eda_fig10_executive_storytelling_dashboard.png
 │
-├── figures/                            # Visual artifacts
-│   ├── figures_eda/                    # High-resolution (300 DPI) publication PNGs (Figures 1 to 10)
-│   └── Mayank_Analysis_Figures.pdf     # Vector PDF compilation
-│
-├── notebooks/                          # Team member notebooks
-│   ├── Mayank.ipynb                    # Complete EDA, modeling, and visualization suite
-│   ├── Pranav.ipynb                    # Data cleaning, missing data analysis & imputation
+├── notebooks/                          # Interactive analysis & modeling notebooks
+│   ├── Mayank.ipynb                    # Lead EDA & Statistical Modeling Suite (Units 1 to 6)
+│   ├── Pranav.ipynb                    # Data cleaning, missingness diagnostics & imputation
 │   └── Krish.ipynb                     # Study formulation & survey administration
 │
-├── reports/                            # Documentation drafts
-│   ├── IDHV_Project_Complete.docx      # Complete report deliverable
+├── reports/                            # Local report outputs (*.docx and *.pdf ignored in Git)
+│   ├── IDHV_Project_Complete.docx      # Final comprehensive Word report with bordered tables
 │   ├── IDHV Project.docx               # Base collaborative draft
-│   └── Project_Report.pdf              # Preliminary report draft
+│   ├── Mayank_Analysis_Figures.pdf     # Consolidated vector PDF compilation of all 10 figures
+│   └── Project_Report.pdf              # Initial report draft
 │
-└── scripts_archive/                    # Automated build and styling utilities
-    ├── build_final_report.py           # Production Word report generator
-    ├── report_styles.py                # Table boundary, cell margin & typography engine
-    └── organize_dir.py                 # Directory structuring utility
+└── scripts/                            # Core build & automation scripts
+    ├── build_final_report.py           # Automated Word report builder with bordered styled tables
+    ├── create_figures_pdf.py           # Compiles all 10 PNG figures into Mayank_Analysis_Figures.pdf
+    ├── prepare_cleaned.py              # Data cleaning and feature engineering pipeline
+    └── report_styles.py                # Table border, zebra shading & typography formatting engine
 ```
+
+> **Note on Report Files:** In line with repository hygiene best practices, compiled binary documents (`.docx`, `.pdf`) in `reports/` are preserved locally for academic submission but excluded from GitHub tracking via `.gitignore`.
 
 ---
 
@@ -112,11 +126,11 @@ Course Project/
 
 | File | Type | Description |
 | :--- | :--- | :--- |
-| [`IDHV_Project_Complete.docx`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/IDHV_Project_Complete.docx) | Word Document (~1.7 MB) | Comprehensive course report containing Sections 1–6 with embedded bordered tables, zebra striping, and 10 high-resolution figures. |
-| [`Mayank.ipynb`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/Mayank.ipynb) | Jupyter Notebook (~2.5 MB) | Fully executed 28-cell notebook with all statistical tests, tabular outputs, markdown narratives, and inline visualizations covering Units 1 to 6. |
-| [`Mayank_Analysis_Figures.pdf`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/Mayank_Analysis_Figures.pdf) | Vector PDF (~2.2 MB) | Standalone vector PDF compiling all 10 figures with academic title headers and italic captions. |
-| [`cleaned_data.csv`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/cleaned_data.csv) | CSV Dataset (~12 KB) | Cleaned, validated, and range-sanitized dataset with composite scores and behavioral index features ($N = 48$). |
-| [`raw_data.csv`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/raw_data.csv) | CSV Dataset (~10 KB) | Original raw survey responses ($N = 60$) exported directly from Google Forms. |
+| [`notebooks/Mayank.ipynb`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/notebooks/Mayank.ipynb) | Jupyter Notebook (~2.5 MB) | Fully executed 28-cell notebook with all statistical tests, tabular outputs, markdown narratives, and inline visualizations covering Units 1 to 6. |
+| [`data/processed/cleaned_data.csv`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/data/processed/cleaned_data.csv) | CSV Dataset (~12 KB) | Cleaned, validated, and range-sanitized dataset with composite scores and behavioral index features ($N = 55$). |
+| [`data/raw/raw_data.csv`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/data/raw/raw_data.csv) | CSV Dataset (~10 KB) | Original raw survey responses ($N = 60$) exported directly from Google Forms. |
+| [`reports/IDHV_Project_Complete.docx`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/reports/IDHV_Project_Complete.docx) | Word Document (~1.7 MB) | Comprehensive course report containing Sections 1–6 with embedded bordered tables, zebra striping, and 10 high-resolution figures (local deliverable). |
+| [`reports/Mayank_Analysis_Figures.pdf`](file:///Ubuntu-24.04/home/mayank_kumar_388/Courses/Sem%205/Data%20Handling%20&%20Visualization/Course%20Project/reports/Mayank_Analysis_Figures.pdf) | Vector PDF (~2.3 MB) | Standalone vector PDF compiling all 10 figures with academic title headers and italic captions (local deliverable). |
 
 ---
 
@@ -163,13 +177,19 @@ pip install pandas numpy scipy statsmodels matplotlib seaborn python-docx pypdf 
 To view and run the complete analytical notebook:
 
 ```bash
-jupyter notebook Mayank.ipynb
+jupyter notebook notebooks/Mayank.ipynb
 ```
 
-To re-generate the complete formatted Word report with table borders and embedded figures:
+To re-generate the complete formatted Word report with bordered tables and embedded figures:
 
 ```bash
-python scripts_archive/build_final_report.py
+python scripts/build_final_report.py
+```
+
+To compile all PNG figures into a standalone vector PDF:
+
+```bash
+python scripts/create_figures_pdf.py
 ```
 
 ---

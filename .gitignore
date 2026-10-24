@@ -3,6 +3,16 @@
 # Course: Data Handling & Visualization (IDHV)
 # ==============================================================================
 
+# Project reports, Word documents, and PDF outputs (Kept locally, not tracked on GitHub)
+reports/
+*.docx
+*.doc
+*.pdf
+*.pptx
+~$*.doc*
+~$*.xls*
+~$*.ppt*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -67,14 +77,10 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Microsoft Office temporary lock files (generated when Word is open)
-~$*.doc*
-~$*.xls*
-~$*.ppt*
-
 # Temporary scratch and test outputs
 test_*.py
 test_*.docx
 *.tmp
 *.temp
 /scratch/
+scripts_archive/

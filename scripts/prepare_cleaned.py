@@ -1,9 +1,10 @@
-﻿import pandas as pd
+import os
+import pandas as pd
 import numpy as np
 import re
 
 # Read raw
-raw = pd.read_csv('raw_data.csv')
+raw = pd.read_csv(next(p for p in ['data/raw/raw_data.csv', '../data/raw/raw_data.csv', 'raw_data.csv'] if os.path.exists(p)))
 print('Raw shape:', raw.shape)
 
 # Step 1: Standardize column names (aligned with Pranav and Krish)
@@ -120,5 +121,7 @@ df['distraction_reversed'] = 6.0 - df['phone_distraction']
 df['focus_score'] = df[['concentration', 'distraction_reversed']].mean(axis=1) / 5.0 * 100.0
 
 print('Final cleaned dataframe shape:', df.shape)
-df.to_csv('cleaned_data.csv', index=False)
+out_csv = 'data/processed/cleaned_data.csv' if os.path.exists('data/processed') else ('../data/processed/cleaned_data.csv' if os.path.exists('../data/processed') else 'cleaned_data.csv')
+os.makedirs(os.path.dirname(out_csv), exist_ok=True)
+df.to_csv(out_csv, index=False)
 print('Successfully saved cleaned_data.csv!')

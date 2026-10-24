@@ -579,13 +579,11 @@ def build_full_report():
     ]
     add_styled_table(app_headers, app_data)
 
-    out_root = os.path.join(WORKSPACE_DIR, "IDHV_Project_Complete.docx")
     out_rep = os.path.join(WORKSPACE_DIR, "reports", "IDHV_Project_Complete.docx")
-    
-    print(f"Saving to {out_root}...")
-    doc.save(out_root)
-    shutil.copy2(out_root, out_rep)
-    print(f"Successfully generated and saved {out_root} and {out_rep}!")
+    os.makedirs(os.path.dirname(out_rep), exist_ok=True)
+    print(f"Saving to {out_rep}...")
+    doc.save(out_rep)
+    print(f"Successfully generated and saved {out_rep}!")
 
 if __name__ == "__main__":
     build_full_report()

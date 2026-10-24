@@ -1,0 +1,910 @@
+*** CELL 0 (code) ***
+import numpy as np
+import pandas as pd
+
+from google.colab import drive
+drive.mount('/content/drive')
+
+import os
+
+print(os.listdir('/content/drive/MyDrive'))
+
+df = pd.read_csv('/content/drive/MyDrive/Student Lifestyle & Academic Productivity Survey (Responses) - Form responses 1.csv')
+df.head()
+
+========================================
+
+*** CELL 1 (markdown) ***
+
+
+========================================
+
+*** CELL 2 (code) ***
+# Renaming the column names
+
+df.rename(columns={
+    "Timestamp": "timestamp",
+    "What is your current year of study?": "year_of_study",
+    "What is your gender? ": "gender",
+    "On average, how many days per week do you go to the gym or do structured workouts (weights, cardio, yoga, home workouts, walking or jogging)?": "workout_days_per_week",
+    "On average, how many hours per week do you play sports (cricket, football, badminton, etc.)?": "sports_hours_per_week",
+    "On average, how many hours do you sleep per night on weekdays?": "sleep_hours",
+    "At what time do you usually fall asleep on weekdays?": "sleep_time",
+    "How would you rate your sleep quality over the past month?": "sleep_quality",
+    "Do you use your phone in the last 30 minutes before sleeping?": "phone_before_sleep",
+    "On average, how many hours per day do you spend on your phone/laptop for recreation (social media, videos, OTT, gaming, browsing)?": "recreational_screen_hours",
+    "Out of that, how many hours per day do you spend on social media (Instagram, YouTube Shorts, Snapchat, etc.)?": "social_media_hours",
+    "How many hours per day do you spend on gaming or OTT (Netflix, Prime, etc.)?": "gaming_ott_hours",
+    "How often do you get distracted by your phone while studying?": "phone_distraction",
+    "On average, how many hours per day do you spend studying outside class (including assignments and projects)?": "study_hours",
+    "How consistent are you in your study routine?": "study_consistency",
+    "What is your approximate class attendance?": "class_attendance",
+    "What is your latest SGPA/CGPA (out of 10)?": "cgpa",
+    "How would you rate your stress level during the last 4 weeks?": "stress_level",
+    "How well are you able to concentrate while studying?": "concentration",
+    "How productive do you feel in your academic work (completing tasks on time, understanding concepts)?": "academic_productivity",
+    "How often do you feel mentally tired or drained during the day?": "mental_fatigue",
+    "Do you feel that your physical activity (gym/sports) helps your studies?": "physical_activity_impact"
+}, inplace=True)
+
+# Verify the renamed columns
+print(df.columns.tolist())
+
+# Save a copy with the new column names
+df.to_csv("student_survey_renamed.csv", index=False)
+
+========================================
+
+*** CELL 3 (code) ***
+df.head()
+
+========================================
+
+*** CELL 4 (code) ***
+# Checking the data types and structure of the data
+print("Shape: ", df.shape)
+print("\nColumn names:")
+print(df.columns.tolist())
+
+print("\nData types:")
+print(df.dtypes)
+
+print("\nMissing values:")
+print(df.isnull().sum())
+
+print("\nDuplicated rows:")
+print(df.duplicated().sum())
+
+
+========================================
+
+*** CELL 5 (code) ***
+# Building a view of the data to only check the object data types
+df_obj = df.select_dtypes(include=['object'])
+df_obj.head()
+
+# I cannot use sleep_time, workout_days_per_week, phone_before_sleep, class_attendance, physical_acitivity_impact
+
+========================================
+
+*** CELL 6 (code) ***
+import pandas as pd
+import numpy as np
+
+def clean_and_convert(val):
+    if pd.isna(val):
+        return np.nan
+    val_str = str(val).strip().lower()
+    if val_str in ['na', 'n/a', 'nan', 'null', '']:
+        return np.nan
+    val_clean = val_str.replace('hours', '').replace('hour', '').replace('hrs', '').replace('hr', '').replace('h', '').strip()
+    try:
+        return float(val_clean)
+    except ValueError:
+        return np.nan
+
+# Columns to convert to numeric
+num_cols = ['sleep_hours', 'recreational_screen_hours', 'social_media_hours', 'gaming_ott_hours', 'study_hours', 'cgpa']
+
+for col in num_cols:
+    df[col] = df[col].apply(clean_and_convert)
+
+print(df[num_cols].dtypes)
+display(df[num_cols].head())
+
+========================================
+
+*** CELL 7 (markdown) ***
+
+
+========================================
+
+*** CELL 8 (code) ***
+df["physical_activity_impact"] = df["physical_activity_impact"].replace({
+    "Somewhat": "minimal impact",
+    "Yes, clearly": "clear impact",
+    "I don't do any physical activity": "no impact",
+    "No effect": "no impact"
+})
+
+df["gender"] = df["gender"].replace({
+    "male": "Male",
+    "female": "Female",
+    "NaN": "Prefer not to say"
+})
+
+# Removing the leading/trailing spaces and standardize capitalization
+
+categorical_cols = df.select_dtypes(
+    include=["object", "string"]
+).columns
+
+for col in categorical_cols:
+  df[col] = df[col].apply(
+      lambda x: x.strip() if isinstance(x, str) else x
+  )
+
+for col in categorical_cols:
+  print(f"\n{col}")
+  print(df[col].value_counts(dropna=False))
+
+========================================
+
+*** CELL 9 (code) ***
+# Handling the mission data in each of the columns
+missing_percent = (
+    df.isnull().mean().mul(100).round(2)
+    .sort_values(ascending=False)
+)
+
+print(missing_percent)
+
+========================================
+
+*** CELL 10 (code) ***
+# Higher percentage in missingness in CGPA might indicate that some students preferred not to disclose their grades.
+
+# Missing-value summary
+missing_summary = pd.DataFrame({
+    "missing_count": df.isnull().sum(),
+    "missing_percentage": (df.isnull().mean() * 100).round(2)
+})
+
+print(missing_summary.sort_values(
+    "missing_percentage", ascending=False
+))
+
+========================================
+
+*** CELL 11 (code) ***
+# Checking how many values are missing per respondent
+missing_count_per_row = df.isnull().sum(axis=1)
+
+print(missing_count_per_row.value_counts().sort_index())
+
+# There are 4 rows in which all the 21 column values are being missed -> remove those rows
+
+========================================
+
+*** CELL 12 (code) ***
+# Count missing values per respondent
+row_missing = df.isnull().sum(axis=1)
+
+# Show respondents with 10 or more missing values
+incomplete = df.loc[row_missing >= 10].copy()
+display(incomplete)
+
+# Drop rows with 10 or more missing values using their index
+df = df.drop(index=incomplete.index)
+print(f"Remaining rows in df: {df.shape[0]}")
+
+========================================
+
+*** CELL 13 (code) ***
+missing_mask = df.isnull().astype(int)
+
+co_missing = missing_mask.T @ missing_mask
+
+print(co_missing.loc[
+    ["sleep_hours", "study_hours", "cgpa"],
+    ["sleep_hours", "study_hours", "cgpa"]
+])
+
+========================================
+
+*** CELL 14 (code) ***
+# Finding the common missingness pattern
+patterns = (
+    missing_mask
+    .groupby(list(missing_mask.columns))
+    .size()
+    .sort_values(ascending=False)
+)
+
+print(patterns.head(10))
+
+========================================
+
+*** CELL 15 (code) ***
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+plt.imshow(df.isnull().T, aspect="auto", interpolation="nearest")
+plt.yticks(range(len(df.columns)), df.columns)
+plt.xlabel("Respondent index")
+plt.ylabel("Variables")
+plt.title("Missing Data Pattern")
+plt.tight_layout()
+plt.show()
+
+========================================
+
+*** CELL 16 (markdown) ***
+The missing-data plot reveals that the missing values are concentrated in a few varaibles and respondents, rather than being uniformly distributed across the dataset.
+
+sleep_hours missing values appear across multiple respondents
+screen_time variables show overlapping gaps for some respondents. which indicate that respondents skipped related questions toghether
+Study_hours and cgpa have missing entries which may appear to overlap with sleep or screen time gaps
+most categorical and well-being variables appear largely complete in thevisualization
+
+========================================
+
+*** CELL 17 (code) ***
+# Identifying variables that miss together
+original_df = df.drop(
+    columns=["sleep_hours_missing"],
+    errors="ignore"
+)
+
+missing_mask = original_df.isnull().astype(int)
+
+co_missing = missing_mask.T @ missing_mask
+
+cols = [
+    "sleep_hours",
+    "study_hours",
+    "gaming_ott_hours",
+    "recreational_screen_hours",
+    "social_media_hours",
+    "cgpa"
+]
+
+print(co_missing.loc[cols, cols])
+
+========================================
+
+*** CELL 18 (code) ***
+print(pd.crosstab(
+    original_df["year_of_study"],
+    original_df["sleep_hours"].isna(),
+    normalize="index"
+).mul(100).round(2))
+
+# Does missingness in CGPA vary by gender
+print(pd.crosstab(
+    original_df["gender"],
+    original_df["cgpa"].isna(),
+    normalize="index"
+).mul(100).round(2))
+
+========================================
+
+*** CELL 19 (code) ***
+# Sleep-hours missingness by year
+sleep_analysis = (
+    original_df.assign(
+        sleep_missing=original_df["sleep_hours"].isna()
+    )
+    .groupby("year_of_study", dropna=False)
+    .agg(
+        students=("sleep_missing", "size"),
+        missing=("sleep_missing", "sum"),
+        missing_rate=("sleep_missing", "mean")
+    )
+)
+
+sleep_analysis["missing_rate"] *= 100
+
+print(sleep_analysis.round(2))
+
+========================================
+
+*** CELL 20 (code) ***
+cgpa_analysis = (
+    original_df.assign(
+        cgpa_missing=original_df["cgpa"].isna()
+    )
+    .groupby("gender", dropna=False)
+    .agg(
+        students=("cgpa_missing", "size"),
+        missing=("cgpa_missing", "sum"),
+        missing_rate=("cgpa_missing", "mean")
+    )
+)
+
+cgpa_analysis["missing_rate"] *= 100
+
+print(cgpa_analysis.round(2))
+
+========================================
+
+*** CELL 21 (code) ***
+import re
+
+def convert_hours(value):
+  if pd.isna(value):
+    return np.nan
+
+  value = str(value).strip().lower()
+
+  numbers = re.findall(r"\d+(?:\.\d+)?", value)
+  if len(numbers) >= 2:
+    return (float(numbers[0]) + float(numbers[1])) / 2
+
+  if len(numbers) == 1:
+    return float(numbers[0])
+
+  return np.nan
+
+df["sports_hours_per_week"] = (
+    df["sports_hours_per_week"].apply(convert_hours)
+)
+
+print(df["sports_hours_per_week"].value_counts(dropna=False).sort_index())
+
+========================================
+
+*** CELL 22 (code) ***
+if df["sports_hours_per_week"].isna().any():
+    median_sports = df["sports_hours_per_week"].median()
+
+    df["sports_hours_per_week"] = (
+        df["sports_hours_per_week"].fillna(median_sports)
+    )
+
+========================================
+
+*** CELL 23 (code) ***
+df.head()
+
+
+========================================
+
+*** CELL 24 (code) ***
+
+
+========================================
+
+*** CELL 25 (code) ***
+
+import pandas as pd
+import numpy as np
+
+
+# 3. Validate known ranges before imputation
+range_limits = {
+    "sleep_hours": (0, 24),
+    "study_hours": (0, 24),
+    "gaming_ott_hours": (0, 24),
+    "recreational_screen_hours": (0, 24),
+    "social_media_hours": (0, 24),
+    "sports_hours_per_week": (0, 168),
+    "cgpa": (0, 10),
+}
+
+for col, (low, high) in range_limits.items():
+    if col in df.columns:
+        invalid = ~df[col].between(low, high) & df[col].notna()
+        print(f"{col}: {invalid.sum()} out-of-range values")
+        # Investigate invalid values before deciding how to correct them.
+        # Do not automatically replace them.
+
+# 4. Impute continuous numerical variables using the median
+continuous_cols = [
+    "sleep_hours",
+    "study_hours",
+    "gaming_ott_hours",
+    "recreational_screen_hours",
+    "social_media_hours",
+    "sports_hours_per_week",
+]
+
+for col in continuous_cols:
+    if col in df.columns and df[col].isna().any():
+        df[col] = df[col].fillna(df[col].median())
+
+# 5. Impute ordinal ratings using the median
+ordinal_cols = [
+    "sleep_quality",
+    "phone_distraction",
+    "study_consistency",
+    "stress_level",
+    "concentration",
+    "academic_productivity",
+    "mental_fatigue",
+]
+
+for col in ordinal_cols:
+    if col in df.columns:
+        df[col] = pd.to_numeric(df[col], errors="coerce")
+
+        if df[col].isna().any() and df[col].notna().any():
+            median_value = round(df[col].median())
+            df[col] = df[col].fillna(median_value)
+
+# 6. Impute categorical variables using the mode
+categorical_cols = [
+    "gender",
+    "year_of_study",
+    "workout_days_per_week",
+    "sleep_time",
+    "phone_before_sleep",
+    "class_attendance",
+    "physical_activity_impact",
+]
+
+for col in categorical_cols:
+    if col in df.columns and df[col].isna().any():
+        modes = df[col].mode(dropna=True)
+
+        if not modes.empty:
+            df[col] = df[col].fillna(modes.iloc[0])
+
+# 7. Handle CGPA separately.
+# Keep missing CGPA values rather than inventing grades,
+# especially when missingness may reflect non-disclosure.
+
+# 8. Validate the result
+print("\nRemaining missing values:")
+print(df.isna().sum()[df.isna().sum() > 0])
+
+print("\nFinal shape:", df.shape)
+print("\nDuplicate rows:", df.duplicated().sum())
+
+# 9. Save processed data without overwriting the raw dataset
+df.to_csv("student_survey_processed.csv", index=False)
+
+
+========================================
+
+*** CELL 26 (code) ***
+range_limits = {
+    "study_hours": (0, 24),
+    "gaming_ott_hours":  (0, 24),
+    "recreational_screen_hours": (0, 24),
+    "social_media_hours": (0, 24),
+    "cgpa": (0, 10),
+}
+
+for col, (low, high) in range_limits.items():
+  invalid_mask = (
+      df[col].notna()
+      & ~df[col].between(low, high)
+  )
+
+  if invalid_mask.any():
+    print(f"\n{col}:")
+    print(df.loc[invalid_mask, [col]])
+
+========================================
+
+*** CELL 27 (code) ***
+for col, (low, high) in range_limits.items():
+    invalid_mask = (
+        df[col].notna()
+        & ~df[col].between(low, high)
+    )
+    df.loc[invalid_mask, col] = np.nan
+
+========================================
+
+*** CELL 28 (code) ***
+print("Dataset shape:", df.shape)
+print("\nMissing values:")
+print(df.isna().sum()[df.isna().sum() > 0])
+
+print("\nDuplicate rows:", df.duplicated().sum())
+
+df.to_csv("cleaned_data.csv", index=False)
+
+========================================
+
+*** CELL 29 (code) ***
+# Hypothesis formation and research question testing
+
+"""
+The main research question that we are asking is:
+
+How are student's lifestyle habits, particularly physical activity,
+sleep patterns, digital screen time and study routines, associated with their
+academic productivity, success (CGPA) and well being?
+
+The core hyposthesis that I am forming are:
+1. Sleep duration and academic productivity:
+H0 : Sleep duration has no association with academic productivity
+H1 : Sleep duration is postively associated with academic productivity.
+variables: sleep_hours and academic_productivity
+
+2. Recreational screen time and concentration
+H0: Recreatinal screen time has no association with concentration
+H1: Recreational screen time is negatively associated with concentration
+
+3. Study hours and academic productivity
+H0: Study hours have no association with academic productivity.
+H1: Study hours are positively associated with academic productivity.
+
+4. Study hours and CGPA
+H0: There is no association between study hours and CGPA
+H1: Study hours are positively associated with CGPA
+
+5. Sleep duration and CGPA
+H0: There is no association between sleep duration and CGPA
+H1: Sleep duration is positively associated with CGPA
+
+6. Physical activity impact and CGPA
+H0: There is no association between physical activity impact and CGPA
+H1: Physical activity impact is positively associated with CGPA
+
+7. Study hours and physical activity impact
+H0: There is no association between study hours and physical activity impact
+H1: Study hours are positively associated with physical activity impact
+
+8. How are social media usage, gaming/OTT usage and study hours jointly associated with student's CGPA?
+H0: There is no association between social media usage, gaming/OTT usage and study hours.
+H1: Social media usage, gaming/OTT usage and study hours are positively associated with CGPA.
+
+analysis method: Mutliple linear regression
+
+9. How are sleep duration, recreational screen time and social media usage jointly associated with student's CGPA?
+H0: There is no association between sleep duration, recreational screen time and social media usage.
+H1: Sleep duration, recreational screen time and social media usage are positively associated with CGPA.
+Analysis method: Multiple linear regression
+
+"""
+
+
+
+========================================
+
+*** CELL 30 (code) ***
+# Hypothesis formation and research question testing
+
+"""
+The main research question that we are asking is:
+
+How are student's lifestyle habits, particularly physical activity,
+sleep patterns, digital screen time and study routines, associated with their
+academic productivity, success (CGPA) and well being?
+
+The core hyposthesis that I am forming are:
+1. Sleep duration and academic productivity:
+H0 : Sleep duration has no association with academic productivity
+H1 : Sleep duration is postively associated with academic productivity.
+variables: sleep_hours and academic_productivity
+
+2. Recreational screen time and concentration
+H0: Recreatinal screen time has no association with concentration
+H1: Recreational screen time is negatively associated with concentration
+
+3. Study hours and academic productivity
+H0: Study hours have no association with academic productivity.
+H1: Study hours are positively associated with academic productivity.
+
+4. Study hours and CGPA
+H0: There is no association between study hours and CGPA
+H1: Study hours are positively associated with CGPA
+
+5. Sleep duration and CGPA
+H0: There is no association between sleep duration and CGPA
+H1: Sleep duration is positively associated with CGPA
+
+6. Physical activity impact and CGPA
+H0: There is no association between physical activity impact and CGPA
+H1: Physical activity impact is positively associated with CGPA
+
+7. Study hours and physical activity impact
+H0: There is no association between study hours and physical activity impact
+H1: Study hours are positively associated with physical activity impact
+
+8. How are social media usage, gaming/OTT usage and study hours jointly associated with student's CGPA?
+H0: There is no association between social media usage, gaming/OTT usage and study hours.
+H1: Social media usage, gaming/OTT usage and study hours are positively associated with CGPA.
+
+analysis method: Mutliple linear regression
+
+9. How are sleep duration, recreational screen time and social media usage jointly associated with student's CGPA?
+H0: There is no association between sleep duration, recreational screen time and social media usage.
+H1: Sleep duration, recreational screen time and social media usage are positively associated with CGPA.
+Analysis method: Multiple linear regression
+
+"""
+
+
+
+========================================
+
+*** CELL 31 (code) ***
+# Hypothesis formation and research question testing
+
+"""
+The main research question that we are asking is:
+
+How are student's lifestyle habits, particularly physical activity,
+sleep patterns, digital screen time and study routines, associated with their
+academic productivity, success (CGPA) and well being?
+
+The core hyposthesis that I am forming are:
+1. Sleep duration and academic productivity:
+H0 : Sleep duration has no association with academic productivity
+H1 : Sleep duration is postively associated with academic productivity.
+variables: sleep_hours and academic_productivity
+
+2. Recreational screen time and concentration
+H0: Recreatinal screen time has no association with concentration
+H1: Recreational screen time is negatively associated with concentration
+
+3. Study hours and academic productivity
+H0: Study hours have no association with academic productivity.
+H1: Study hours are positively associated with academic productivity.
+
+4. Study hours and CGPA
+H0: There is no association between study hours and CGPA
+H1: Study hours are positively associated with CGPA
+
+5. Sleep duration and CGPA
+H0: There is no association between sleep duration and CGPA
+H1: Sleep duration is positively associated with CGPA
+
+6. Physical activity impact and CGPA
+H0: There is no association between physical activity impact and CGPA
+H1: Physical activity impact is positively associated with CGPA
+
+7. Study hours and physical activity impact
+H0: There is no association between study hours and physical activity impact
+H1: Study hours are positively associated with physical activity impact
+
+8. How are social media usage, gaming/OTT usage and study hours jointly associated with student's CGPA?
+H0: There is no association between social media usage, gaming/OTT usage and study hours.
+H1: Social media usage, gaming/OTT usage and study hours are positively associated with CGPA.
+
+analysis method: Mutliple linear regression
+
+9. How are sleep duration, recreational screen time and social media usage jointly associated with student's CGPA?
+H0: There is no association between sleep duration, recreational screen time and social media usage.
+H1: Sleep duration, recreational screen time and social media usage are positively associated with CGPA.
+Analysis method: Multiple linear regression
+
+"""
+
+
+
+========================================
+
+*** CELL 32 (code) ***
+
+import pandas as pd
+from scipy.stats import spearmanr, pearsonr
+
+test_df = df.copy()
+
+impact_map = {
+    "no impact": 0,
+    "minimal impact": 1,
+    "clear impact": 2
+}
+
+test_df["physical_activity_impact_num"] = (
+    test_df["physical_activity_impact"]
+    .astype("string")
+    .str.strip()
+    .str.lower()
+    .map(impact_map)
+)
+
+def print_test_result(h_name, var1, var2, test_func, alternative):
+    temp = test_df[[var1, var2]].dropna()
+    n = len(temp)
+
+    if n < 3:
+        print(f"{h_name}: Not enough data (n={n}).\n")
+        return
+
+    stat, p = test_func(
+        temp[var1],
+        temp[var2],
+        alternative=alternative
+    )
+
+    alpha = 0.05
+    result = (
+        "Reject H0 (Statistically significant)"
+        if p < alpha
+        else "Fail to reject H0 (Not statistically significant)"
+    )
+
+    print(f"{h_name}: {var1} vs {var2}")
+    print(f"   n = {n}")
+    print(f"   Correlation = {stat:.4f}")
+    print(f"   One-sided p-value = {p:.4f}")
+    print(f"   Conclusion: {result}\n")
+
+
+print("=== Pairwise Hypothesis Tests ===\n")
+
+print_test_result(
+    "H1", "sleep_hours", "academic_productivity",
+    spearmanr, "greater"
+)
+
+print_test_result(
+    "H2", "recreational_screen_hours", "concentration",
+    spearmanr, "less"
+)
+
+print_test_result(
+    "H3", "study_hours", "academic_productivity",
+    spearmanr, "greater"
+)
+
+print_test_result(
+    "H4", "study_hours", "cgpa",
+    pearsonr, "greater"
+)
+
+print_test_result(
+    "H5", "sleep_hours", "cgpa",
+    pearsonr, "greater"
+)
+
+print_test_result(
+    "H6", "physical_activity_impact_num", "cgpa",
+    spearmanr, "greater"
+)
+
+print_test_result(
+    "H7", "study_hours", "physical_activity_impact_num",
+    spearmanr, "greater"
+)
+
+
+========================================
+
+*** CELL 33 (code) ***
+
+import pandas as pd
+from scipy.stats import spearmanr, pearsonr
+
+# Copy the cleaned dataframe
+test_df = df.copy()
+
+# Convert physical activity impact to ordinal values
+impact_map = {
+    "no impact": 0,
+    "minimal impact": 1,
+    "clear impact": 2
+}
+
+test_df["physical_activity_impact_num"] = (
+    test_df["physical_activity_impact"]
+    .astype("string")
+    .str.strip()
+    .str.lower()
+    .map(impact_map)
+)
+
+def print_test_result(h_name, var1, var2, test_func):
+    temp = test_df[[var1, var2]].dropna()
+    n = len(temp)
+
+    if n < 3:
+        print(f"{h_name}: Not enough data (n={n}).\n")
+        return
+
+    # Run a two-sided correlation test
+    stat, p = test_func(
+        temp[var1],
+        temp[var2],
+        alternative="two-sided"
+    )
+
+    alpha = 0.05
+    result = (
+        "Reject H0 (Statistically significant)"
+        if p < alpha
+        else "Fail to reject H0 (Not statistically significant)"
+    )
+
+    print(f"{h_name}: {var1} vs {var2}")
+    print(f"   Sample size: n = {n}")
+    print(f"   Correlation: {stat:.4f}")
+    print(f"   Two-sided p-value: {p:.4f}")
+    print(f"   Conclusion: {result}\n")
+
+
+print("=== Two-Sided Pairwise Hypothesis Tests ===\n")
+
+# H1: Sleep duration and academic productivity
+print_test_result(
+    "H1", "sleep_hours", "academic_productivity", spearmanr
+)
+
+# H2: Recreational screen time and concentration
+print_test_result(
+    "H2", "recreational_screen_hours", "concentration", spearmanr
+)
+
+# H3: Study hours and academic productivity
+print_test_result(
+    "H3", "study_hours", "academic_productivity", spearmanr
+)
+
+# H4: Study hours and CGPA
+print_test_result(
+    "H4", "study_hours", "cgpa", pearsonr
+)
+
+# H5: Sleep duration and CGPA
+print_test_result(
+    "H5", "sleep_hours", "cgpa", pearsonr
+)
+
+# H6: Physical activity impact and CGPA
+print_test_result(
+    "H6", "physical_activity_impact_num", "cgpa", spearmanr
+)
+
+# H7: Study hours and physical activity impact
+print_test_result(
+    "H7", "study_hours", "physical_activity_impact_num", spearmanr
+)
+
+
+========================================
+
+*** CELL 34 (code) ***
+import statsmodels.api as sm
+
+print("=== H8: Multiple Linear Regression ===")
+print("IVs: social_media_hours, gaming_ott_hours, study_hours | DV: cgpa\n")
+
+# Prepare data for H8
+h8_cols = ['social_media_hours', 'gaming_ott_hours', 'study_hours', 'cgpa']
+h8_df = test_df[h8_cols].dropna()
+
+X8 = h8_df[['social_media_hours', 'gaming_ott_hours', 'study_hours']]
+y8 = h8_df['cgpa']
+
+# Add constant for intercept
+X8 = sm.add_constant(X8)
+
+# Fit model
+model8 = sm.OLS(y8, X8).fit()
+print(model8.summary())
+
+========================================
+
+*** CELL 35 (code) ***
+print("=== H9: Multiple Linear Regression ===")
+print("IVs: sleep_hours, recreational_screen_hours, social_media_hours | DV: cgpa\n")
+
+# Prepare data for H9
+h9_cols = ['sleep_hours', 'recreational_screen_hours', 'social_media_hours', 'cgpa']
+h9_df = test_df[h9_cols].dropna()
+
+X9 = h9_df[['sleep_hours', 'recreational_screen_hours', 'social_media_hours']]
+y9 = h9_df['cgpa']
+
+# Add constant for intercept
+X9 = sm.add_constant(X9)
+
+# Fit model
+model9 = sm.OLS(y9, X9).fit()
+print(model9.summary())
+
+========================================
+
+*** CELL 36 (code) ***
+
+
+========================================
+

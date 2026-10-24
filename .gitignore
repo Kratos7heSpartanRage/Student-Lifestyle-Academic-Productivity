@@ -1,0 +1,80 @@
+# ==============================================================================
+# .gitignore for Student Lifestyle & Academic Productivity Analysis Project
+# Course: Data Handling & Visualization (IDHV)
+# ==============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+py311_env/
+*/py311_env/
+
+# Jupyter Notebook checkpoints & autosaves
+.ipynb_checkpoints/
+*-checkpoint.ipynb
+.jupyter/
+
+# IDE & Code Editor settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# OS-generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Microsoft Office temporary lock files (generated when Word is open)
+~$*.doc*
+~$*.xls*
+~$*.ppt*
+
+# Temporary scratch and test outputs
+test_*.py
+test_*.docx
+*.tmp
+*.temp
+/scratch/

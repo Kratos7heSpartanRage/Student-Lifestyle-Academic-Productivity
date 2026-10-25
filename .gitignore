@@ -5,6 +5,10 @@
 
 # Project reports, Word documents, and PDF outputs (Kept locally, not tracked on GitHub)
 reports/
+*.zip
+*.tar.gz
+*.7z
+*.rar
 *.docx
 *.doc
 *.pdf

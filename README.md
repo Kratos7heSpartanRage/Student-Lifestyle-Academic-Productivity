@@ -81,7 +81,6 @@ Course Project/
 │   ├── processed/
 │   │   ├── cleaned_data.csv            # Cleaned & sanitized dataset with composite scores (N=55)
 │   │   ├── cleaned_imputed.csv         # Imputed dataset variant (for comparative robustness)
-│   │   └── student_survey_processed.csv# Preprocessed survey dataset
 │   └── tables/                         # Exported CSV frequency & descriptive statistical tables
 │       ├── descriptive_statistics.csv
 │       ├── freq_table_sleep_hours.csv
